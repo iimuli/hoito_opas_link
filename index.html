@@ -55,7 +55,7 @@
 
             // UI Feedback: Loading State
             submitBtn.disabled = true;
-            submitBtn.innerText = "Verifying...";
+            submitBtn.innerText = "Varmistaa...";
             messageEl.classList.add('hidden');
 
             try {
@@ -74,14 +74,14 @@
 
                 if (response.ok && data.url) {
                     // Update UI state to success
-                    messageEl.innerText = `Success! Welcoming ${data.client}. Your download will begin immediately.`;
+                    messageEl.innerText = `PIN oikein! Tervetuloa ${data.client}. Latauksesi käynnistyy pian.`;
                     messageEl.className = "mt-4 text-sm font-medium text-emerald-400 block";
                     
                     // Trigger the secure direct download link
                     window.location.href = data.url;
                 } else {
                     // Display backend custom error message
-                    throw new Error(data.error || "Access Denied.");
+                    throw new Error(data.error || "Pääsy Kielletty.");
                 }
 
             } catch (err) {
@@ -90,7 +90,7 @@
             } finally {
                 // Reset submit button state
                 submitBtn.disabled = false;
-                submitBtn.innerText = "Verify & Download";
+                submitBtn.innerText = "Varmista & Lataa";
             }
         });
     </script>
