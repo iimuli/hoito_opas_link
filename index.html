@@ -73,12 +73,24 @@
                 const data = await response.json();
 
                 if (response.ok && data.url) {
-                    // Update UI state to success
-                    messageEl.innerText = `PIN oikein! Tervetuloa ${data.client}. Latauksesi käynnistyy pian.`;
-                    messageEl.className = "mt-4 text-sm font-medium text-emerald-400 block";
-                    
-                    // Trigger the secure direct download link
-                    window.location.href = data.url;
+    // 1. Clear the PIN input field so it's fresh
+    pinInput.value = '';
+
+    // 2. Show an informative success message with a fallback link
+    messageEl.innerHTML = `
+        <div class="p-3 bg-emerald-950/50 border border-emerald-500/30 rounded-lg">
+            <p class="text-emerald-400 font-bold">✓ PIN oikein! Tervetuloa ${data.client}.</p>
+            <p class="text-gray-300 text-xs mt-1">Latauksesi käynnistyy automaattisesti hetkessä.</p>
+            <p class="text-xs mt-3 text-gray-400">Jos lataus ei alkanut, 
+                <a href="${data.url}" class="text-emerald-400 underline font-medium hover:text-emerald-300">klikkaa tästä ladataksesi tiedoston</a>.
+            </p>
+        </div>
+    `;
+    messageEl.className = "mt-4 block";
+    
+    // 3. Trigger the actual download payload
+    window.location.href = data.url;
+}
                 } else {
                     // Display backend custom error message
                     throw new Error(data.error || "Pääsy Kielletty.");
