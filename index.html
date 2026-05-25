@@ -59,7 +59,7 @@
             messageEl.classList.add('hidden');
 
             try {
-                const endpoint = `https://${SUPABASE_PROJECT_REF}.supabase.co/functions/v1/verify-pin`;
+                const endpoint = `https://${SUPABASE_PROJECT_REF}.supabase.co/functions/v1/pin_verify_download`;
                 
                 const response = await fetch(endpoint, {
                     method: 'POST',
