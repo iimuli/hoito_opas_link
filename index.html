@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure App Download</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen font-sans p-4">
+
+    <div class="w-full max-w-md bg-slate-800 border border-slate-700 p-8 rounded-2xl shadow-xl text-center">
+        <h1 class="text-2xl font-bold mb-2 text-emerald-400">Secure Client Access</h1>
+        <p class="text-slate-400 text-sm mb-6">Enter your verification PIN code below to download the latest APK build.</p>
+        
+        <form id="pinForm" class="space-y-4">
+            <div>
+                <input 
+                    type="text" 
+                    id="pinInput" 
+                    placeholder="Enter PIN Code" 
+                    required
+                    class="w-full tracking-widest text-center text-xl font-mono bg-slate-900 border border-slate-600 rounded-lg py-3 px-4 focus:outline-none focus:border-emerald-500 text-white transition-colors"
+                >
+            </div>
+            <button 
+                type="submit" 
+                id="submitBtn"
+                class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold py-3 rounded-lg shadow-lg hover:shadow-emerald-500/20 transition-all cursor-pointer"
+            >
+                Verify & Download
+            </button>
+        </form>
+
+        <p id="message" class="mt-4 text-sm font-medium hidden"></p>
+    </div>
+
+    <script>
+        // CONFIGURATION: Replace these values with your actual project credentials
+        const SUPABASE_PROJECT_REF = "ovopyugexiqxhdttaoiv"; // e.g. "abcdeflgkijmno"
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92b3B5dWdleGlxeGhkdHRhb2l2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMjYyNTcsImV4cCI6MjA4NjkwMjI1N30.eyhJzzbTMt0Bj9veivYfGfdyH72OaN5BeKNz-AF4k-E";       // Your public anon/client API key
+
+        const form = document.getElementById('pinForm');
+        const pinInput = document.getElementById('pinInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const messageEl = document.getElementById('message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const pin = pinInput.value.trim();
+            if (!pin) return;
+
+            // UI Feedback: Loading State
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Verifying...";
+            messageEl.classList.add('hidden');
+
+            try {
+                const endpoint = `https://${SUPABASE_PROJECT_REF}.supabase.co/functions/v1/verify-pin`;
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({ pin: pin })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.url) {
+                    // Update UI state to success
+                    messageEl.innerText = `Success! Welcoming ${data.client}. Your download will begin immediately.`;
+                    messageEl.className = "mt-4 text-sm font-medium text-emerald-400 block";
+                    
+                    // Trigger the secure direct download link
+                    window.location.href = data.url;
+                } else {
+                    // Display backend custom error message
+                    throw new Error(data.error || "Access Denied.");
+                }
+
+            } catch (err) {
+                messageEl.innerText = err.message;
+                messageEl.className = "mt-4 text-sm font-medium text-red-400 block";
+            } finally {
+                // Reset submit button state
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Verify & Download";
+            }
+        });
+    </script>
+</body>
+</html>
